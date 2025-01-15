@@ -30,7 +30,8 @@ def collate_fn(batch_data):
         batch_data[i] = batch_data[i].values()
     input_ids,labels,speech_tensors, tgt_units,speech_lengths = zip(*batch_data)
 
-    input_ids = pad_sequence(input_ids, batch_first=True, padding_value=-100)
+    # input_idspad为llama的<|eot_id|>
+    input_ids = pad_sequence(input_ids, batch_first=True, padding_value=128009)
     labels = pad_sequence(labels, batch_first=True, padding_value=-100)
     tgt_units = pad_sequence(tgt_units, batch_first=True, padding_value=-100)
     # input_ids = torch.stack(input_ids, dim=0)
@@ -69,8 +70,9 @@ class CustomDataset(Dataset):
 
     def __getitem__(self, index):
         #tgt_unit = torch.tensor(self.tgt_unit[index])
-        tgt_unit = self.responses[index]
-        tgt_unit = tgt_unit['prediction_units']
+        responses = self.responses[index]
+        prediction = responses['prediction']
+        tgt_unit = responses['prediction_units']
         tgt_unit = torch.tensor([int(item) for item in tgt_unit.split(' ')])
         item = self.questions[index]
         speech_file = item["speech"]
@@ -79,7 +81,7 @@ class CustomDataset(Dataset):
         # llm_gt = self.llm_gt[index]
         conv = conv_templates[args.conv_mode].copy()
         conv.append_message(conv.roles[0], qs)
-        conv.append_message(conv.roles[1], None)
+        conv.append_message(conv.roles[1], prediction)
         prompt = conv.get_prompt()
         
 
@@ -91,8 +93,23 @@ class CustomDataset(Dataset):
         elif self.input_type == "mel":
             speech = whisper.pad_or_trim(speech)
             speech = whisper.log_mel_spectrogram(speech, n_mels=self.mel_size).permute(1, 0)
-        input_ids = tokenizer_speech_token(prompt, self.tokenizer, return_tensors='pt')
-        ret=dict(input_ids=input_ids,labels=input_ids, speech=speech, tgt_units=tgt_unit ,speech_lengths=torch.LongTensor([speech.shape[0]]))
+        input_ids_ = tokenizer_speech_token(prompt, self.tokenizer, return_tensors='pt')
+        input_ids = input_ids_.tolist()
+        # 处理 input_ids 和 labels
+        split_markers = [128006, 78191, 128007, 271]
+        last_marker_index = -1
+
+        for i in range(len(input_ids) - len(split_markers) + 1):
+            if input_ids[i:i + len(split_markers)] == split_markers:
+                last_marker_index = i + len(split_markers)
+                break
+        if last_marker_index != -1:
+            list1 = input_ids[:last_marker_index]
+            list2 = input_ids[last_marker_index:]
+
+        labels = len(list1) * [-100] + list2
+        labels = torch.tensor(labels, device=input_ids_.device, dtype=input_ids_.dtype)
+        ret=dict(input_ids=input_ids_,labels=labels, speech=speech, tgt_units=tgt_unit ,speech_lengths=torch.LongTensor([speech.shape[0]]))
         # ret=dict(input_ids=input_ids,labels=None, speech=speech, tgt_units=tgt_unit ,speech_lengths=torch.LongTensor([speech.shape[0]]))
         return ret
     def __len__(self):
@@ -136,7 +153,8 @@ def train_model(args):
 
     
     # optimizer = optim.Adam(model.parameters(), lr=0.00001)
-    optimizer = optim.Adam(model.speech_generator.parameters() , lr=5e-8)
+    # 学习率变大
+    optimizer = optim.Adam(model.speech_generator.parameters() , lr=1e-4)
     # optimizer = optim.SGD(model.parameters(), lr=0.001)
 
 
