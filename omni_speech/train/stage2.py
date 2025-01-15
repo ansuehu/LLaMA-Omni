@@ -95,7 +95,7 @@ class CustomDataset(Dataset):
             speech = whisper.log_mel_spectrogram(speech, n_mels=self.mel_size).permute(1, 0)
         input_ids_ = tokenizer_speech_token(prompt, self.tokenizer, return_tensors='pt')
         input_ids = input_ids_.tolist()
-        # 处理 input_ids 和 labels
+        # 处理 input_ids 和 labels，仅训练answer部分的loss 
         split_markers = [128006, 78191, 128007, 271]
         last_marker_index = -1
 
