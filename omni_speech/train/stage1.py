@@ -1,31 +1,30 @@
-from omni_speech.model.builder import load_pretrained_model,create_model
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
+
+from omni_speech.model.builder import create_model
 import argparse
 import os
 import torch
 from torch.utils.data import Dataset, DataLoader
 import whisper
 from omni_speech.conversation import conv_templates
-import ipdb  
 import math
 import json
-from tqdm import tqdm
 from omni_speech.datasets.preprocess import tokenizer_speech_token
-from transformers import DataCollatorForLanguageModeling
 from transformers import TrainingArguments
 from transformers import Trainer
-from tqdm import tqdm
-import torch.optim as optim
-import torch.optim as optim
-from transformers import DataCollatorForSeq2Seq
 from torch.nn.utils.rnn import pad_sequence
 
 # Custom dataset class
 
 def collate_fn(batch):
-    for i in range(len(batch)):
-        batch[i]= batch[i].values()
+    # for i in range(len(batch)):
+    #     batch[i]= batch[i].values()
         
-    input_ids,labels,speech_tensors,speech_lengths = zip(*batch)
+    input_ids, labels, speech_tensors, speech_lengths = zip(
+        *[list(item.values()) for item in batch]
+    )
     input_ids = pad_sequence(input_ids, batch_first=True, padding_value=128009)
     labels = pad_sequence(labels, batch_first=True, padding_value=128009)
 
@@ -34,9 +33,10 @@ def collate_fn(batch):
     return {"input_ids":input_ids,"labels":labels, "speech":speech_tensors, "speech_lengths":speech_lengths}
 
 class CustomDataset(Dataset):
-    def __init__(self, questions, tokenizer, model_config, input_type, mel_size):
+    def __init__(self, questions, tokenizer, conv_mode, model_config, input_type, mel_size):
         self.questions = questions
         self.tokenizer = tokenizer
+        self.conv_mode = conv_mode
         self.model_config = model_config
         self.input_type = input_type
         self.mel_size = mel_size
@@ -47,7 +47,7 @@ class CustomDataset(Dataset):
         qs = item["conversations"][0]["value"]
         re = item["conversations"][1]["value"]
 
-        conv = conv_templates[args.conv_mode].copy()
+        conv = conv_templates[self.conv_mode].copy()
         conv.append_message(conv.roles[0], qs)
         conv.append_message(conv.roles[1], re)
         prompt = conv.get_prompt()
@@ -67,10 +67,10 @@ class CustomDataset(Dataset):
         return len(self.questions)
     
 # DataLoader
-def create_data_loader(questions, tokenizer, model_config, input_type, mel_size, batch_size=2, num_workers=1):
+def create_data_loader(questions, tokenizer, conv_mode, model_config, input_type, mel_size, batch_size=2, num_workers=1):
     # assert batch_size == 1, "batch_size must be 1"
     
-    dataset = CustomDataset(questions, tokenizer, model_config, input_type, mel_size)
+    dataset = CustomDataset(questions, tokenizer, conv_mode, model_config, input_type, mel_size)
     #data_loader = DataLoader(dataset, batch_size=batch_size, num_workers=num_workers, shuffle=False, collate_fn=collate_fn)
     return dataset
 
@@ -98,7 +98,7 @@ def train_model(args):
     
     questions = json.load(open(os.path.expanduser(args.question_file), "r"))
     questions = get_chunk(questions, args.num_chunks, args.chunk_idx) #chunk 1 chunk-idx 0 取list中的多少进行测试
-    data_loader = create_data_loader(questions, tokenizer, model.config, args.input_type, args.mel_size)
+    data_loader = create_data_loader(questions, tokenizer, args.conv_mode, model.config, args.input_type, args.mel_size)
 
 
     from transformers import Trainer, TrainingArguments
@@ -139,7 +139,6 @@ def train_model(args):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
     parser = argparse.ArgumentParser()
     parser.add_argument("--model-path", type=str, default="facebook/opt-350m")
     parser.add_argument("--model-base", type=str, default=None)
