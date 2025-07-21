@@ -29,6 +29,9 @@ from ..omni_speech_arch import OmniSpeechMetaModel, OmniSpeechMetaForCausalLM
 
 class OmniSpeechConfig(LlamaConfig):
     model_type = "omni_speech_llama"
+    encoder_path = "Ansu/mHubert-basque-k1000-L9"
+    speech_encoder_type = "hubert"  # "whisper" or "hubert"
+    encoder_type = "finetune"  # "pretrain" or "finetune"
 
 
 class OmniSpeechLlamaModel(OmniSpeechMetaModel, LlamaModel):

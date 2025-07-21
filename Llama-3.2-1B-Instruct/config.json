@@ -39,7 +39,7 @@
   "speech_encoder": "models/speech_encoder/large-v3.pt",
   "speech_encoder_ds_rate": 5,
   "speech_encoder_hidden_size": 1280,
-  "speech_encoder_type": "whisper",
+  "speech_encoder_type": "hubert",
   "speech_generator_type": "ctc",
   "speech_normalize": false,
   "speech_projector_lr": 0.001,

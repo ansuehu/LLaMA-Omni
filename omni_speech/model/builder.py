@@ -17,7 +17,7 @@ import os
 import warnings
 import shutil
 
-from transformers import AutoTokenizer, AutoModelForCausalLM, AutoConfig, BitsAndBytesConfig
+from transformers import AutoTokenizer, LlamaTokenizer, AutoModelForCausalLM, AutoConfig, BitsAndBytesConfig
 import torch
 from omni_speech.model import *
 from omni_speech.model.speech_encoder.builder import build_speech_encoder
@@ -139,10 +139,11 @@ def create_model(model_path, model_base, is_lora=False, s2s=False, load_8bit=Fal
             model_path,
             low_cpu_mem_usage=False,
             **kwargs,
-
         )
     
-    model.initialize_speech_generator(model.config)
+    if s2s:
+        model.initialize_speech_generator(model.config)
+    
     model = model.to(device=device,dtype=torch.bfloat16)
     model.get_model().speech_encoder = build_speech_encoder(model.config)
     model.get_model().speech_encoder.to(device=device, dtype=torch.bfloat16)

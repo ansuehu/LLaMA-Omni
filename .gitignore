@@ -3,3 +3,4 @@ llama_omni.egg-info/
 models/
 vocoder/
 .slurm/
+*.safetensors

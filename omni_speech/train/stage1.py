@@ -93,7 +93,7 @@ def train_model(args):
     device = 'cuda' if torch.cuda.is_available() else 'cpu'     # 设置 device，能用 cuda 就用 cuda，苹果 M 系列可以用 mps
 
     model_path = os.path.expanduser(args.model_path)
-    tokenizer, model, context_len = create_model(model_path, args.model_base, is_lora=args.is_lora, s2s=args.s2s)
+    tokenizer, model, context_len = create_model(model_path, args.model_base, is_lora=args.is_lora, s2s=args.s2s, device=device)
 
     
     questions = json.load(open(os.path.expanduser(args.question_file), "r"))
