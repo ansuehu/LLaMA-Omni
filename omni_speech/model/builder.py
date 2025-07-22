@@ -134,7 +134,7 @@ def create_model(model_path, model_base, is_lora=False, s2s=False, load_8bit=Fal
         print('Model is loaded...')
         
     else:
-        tokenizer = AutoTokenizer.from_pretrained(model_path,padding_side="right",padding=True, use_fast=False)
+        tokenizer = AutoTokenizer.from_pretrained(model_path)
         model = model_cls.from_pretrained(
             model_path,
             low_cpu_mem_usage=False,

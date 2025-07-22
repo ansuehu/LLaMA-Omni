@@ -7,7 +7,7 @@ import argparse
 import os
 import torch
 from torch.utils.data import Dataset, DataLoader
-import whisper
+# import whisper
 from omni_speech.conversation import conv_templates
 import math
 import json
@@ -29,7 +29,6 @@ def collate_fn(batch):
     labels = pad_sequence(labels, batch_first=True, padding_value=128009)
 
     speech_tensors = torch.stack(speech_tensors, dim=0)
-    speech_lengths = torch.stack(speech_lengths, dim=0)
     return {"input_ids":input_ids,"labels":labels, "speech":speech_tensors, "speech_lengths":speech_lengths}
 
 class CustomDataset(Dataset):
@@ -91,17 +90,16 @@ def train_model(args):
     
     
     device = 'cuda' if torch.cuda.is_available() else 'cpu'     # 设置 device，能用 cuda 就用 cuda，苹果 M 系列可以用 mps
+    device = 'cpu'
 
     model_path = os.path.expanduser(args.model_path)
     tokenizer, model, context_len = create_model(model_path, args.model_base, is_lora=args.is_lora, s2s=args.s2s, device=device)
-
     
     questions = json.load(open(os.path.expanduser(args.question_file), "r"))
     questions = get_chunk(questions, args.num_chunks, args.chunk_idx) #chunk 1 chunk-idx 0 取list中的多少进行测试
     data_loader = create_data_loader(questions, tokenizer, args.conv_mode, model.config, args.input_type, args.mel_size)
 
 
-    from transformers import Trainer, TrainingArguments
     # 初始化Trainer
     training_args = TrainingArguments(
     output_dir='saves',                         # 输出路径，包括模型检查点、中间文件等

@@ -14,7 +14,7 @@
 
 
 python omni_speech/train/stage1.py \
-    --model-path Llama-3.2-1B-Instruct \
+    --model-path HiTZ/Latxa-Llama-3.1-8B-Instruct \
     --question-file data.json \
     --answer-file answer.json \
     --num-chunks 1 \
