@@ -7,7 +7,7 @@ import argparse
 import os
 import torch
 from torch.utils.data import Dataset, DataLoader
-# import whisper
+import whisper
 from omni_speech.conversation import conv_templates
 import math
 import json
@@ -90,7 +90,6 @@ def train_model(args):
     
     
     device = 'cuda' if torch.cuda.is_available() else 'cpu'     # 设置 device，能用 cuda 就用 cuda，苹果 M 系列可以用 mps
-    device = 'cpu'
 
     model_path = os.path.expanduser(args.model_path)
     tokenizer, model, context_len = create_model(model_path, args.model_base, is_lora=args.is_lora, s2s=args.s2s, device=device)
@@ -115,7 +114,7 @@ def train_model(args):
         warmup_ratio=0.01,
         lr_scheduler_type='cosine',                 # 学习率调度策略，LLM 训练一般都用余弦
         logging_steps=1,                           # 打印步骤间隔
-        report_to=None,                             # 日志输出目标，不想用 wandb 可以设置为 None
+        report_to='Tesorboard',                             # 日志输出目标，不想用 wandb 可以设置为 None
         num_train_epochs=50,                         # 训练轮数，2 ~ 3 即可
         save_steps=1000,                            # 检查点保存步骤间隔
         save_total_limit=2,                         # output_dir 内留存的检查点最大数目
@@ -126,7 +125,7 @@ def train_model(args):
     tokenizer.pad_token = tokenizer.eos_token
     trainer = Trainer(
         model=model,
-        tokenizer=tokenizer,
+        processing_class=tokenizer,
         args=training_args,
         train_dataset=data_loader,
         eval_dataset=data_loader,
