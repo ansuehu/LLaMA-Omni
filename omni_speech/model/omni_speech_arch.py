@@ -28,15 +28,25 @@ class OmniSpeechMetaModel:
     def __init__(self, config):
         super(OmniSpeechMetaModel, self).__init__(config)
 
+        print(config)
         if hasattr(config, "speech_encoder"):
+            print("Initializing speech encoder and projector from config.")
             self.speech_encoder = build_speech_encoder(config)
-            self.speech_projector = build_speech_projector(config)
+        self.speech_projector = build_speech_projector(config)
+        
+        assert self.get_speech_projector() is not None, "speech_projector is not initialized!"  
 
     def get_speech_encoder(self):
         speech_encoder = getattr(self, 'speech_encoder', None)
         if type(speech_encoder) is list:
             speech_encoder = speech_encoder[0]
         return speech_encoder
+    
+    def get_speech_projector(self):
+        speech_projector = getattr(self, 'speech_projector', None)
+        if type(speech_projector) is list:
+            speech_projector = speech_projector[0]
+        return speech_projector
 
     def initialize_speech_modules(self, model_args, fsdp=None):
         self.config.speech_encoder = getattr(model_args, "speech_encoder", None)
@@ -76,7 +86,7 @@ class OmniSpeechMetaForCausalLM(ABC):
         return self.get_model().get_speech_encoder()
     
     def get_speech_projector(self):
-        return self.get_model().speech_projector
+        return self.get_model().get_speech_projector()
 
     def encode_speech(self, speech, speech_lengths):
         speech_encoder_type = self.config.speech_encoder_type
