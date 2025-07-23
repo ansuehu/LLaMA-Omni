@@ -8,6 +8,8 @@ import os
 import torch
 from torch.utils.data import Dataset, DataLoader
 import whisper
+from whisper.audio import load_audio
+from torchaudio import load
 from omni_speech.conversation import conv_templates
 import math
 import json
@@ -28,7 +30,13 @@ def collate_fn(batch):
     input_ids = pad_sequence(input_ids, batch_first=True, padding_value=128009)
     labels = pad_sequence(labels, batch_first=True, padding_value=128009)
 
-    speech_tensors = torch.stack(speech_tensors, dim=0)
+    # Transpose speech tensors to [length, 1] for pad_sequence
+    speech_tensors = [t.transpose(0, 1) if t.shape[0] == 1 else t for t in speech_tensors]
+    speech_tensors = pad_sequence(speech_tensors, batch_first=True, padding_value=0)
+    # Transpose back to [batch, 1, length]
+    # speech_tensors = speech_tensors.transpose(1, 2)
+
+    # speech_tensors = torch.stack(speech_tensors, dim=0)
     return {"input_ids":input_ids,"labels":labels, "speech":speech_tensors, "speech_lengths":speech_lengths}
 
 class CustomDataset(Dataset):
@@ -51,14 +59,15 @@ class CustomDataset(Dataset):
         conv.append_message(conv.roles[1], re)
         prompt = conv.get_prompt()
 
-        speech = whisper.load_audio(speech_file)
-        if self.input_type == "raw":
-            speech = torch.from_numpy(speech)
-            if self.model_config.speech_normalize:
-                speech = torch.nn.functional.layer_norm(speech, speech.shape)
-        elif self.input_type == "mel":
-            speech = whisper.pad_or_trim(speech)
-            speech = whisper.log_mel_spectrogram(speech, n_mels=self.mel_size).permute(1, 0)
+        speech = load(speech_file)[0] # Torchaudio returns a tuple (waveform, sample_rate)
+        speech = speech.squeeze(0)
+        # if self.input_type == "raw":
+        #     # speech = torch.from_numpy(speech) # If loading with torchaudio this is not needed
+        #     if self.model_config.speech_normalize:
+        #         speech = torch.nn.functional.layer_norm(speech, speech.shape)
+        # elif self.input_type == "mel":
+        #     speech = whisper.pad_or_trim(speech)
+        #     speech = whisper.log_mel_spectrogram(speech, n_mels=self.mel_size).permute(1, 0)
         input_ids = tokenizer_speech_token(prompt, self.tokenizer, return_tensors='pt')
         ret=dict(input_ids=input_ids,labels=input_ids, speech=speech.to(torch.bfloat16), speech_lengths=torch.LongTensor([speech.shape[0]]))
         return ret
@@ -89,7 +98,7 @@ def train_model(args):
     # 设置每张卡的device
     
     
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'     # 设置 device，能用 cuda 就用 cuda，苹果 M 系列可以用 mps
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'     # Log output target; if you don't want to use wandb, you can set it to None.
 
     model_path = os.path.expanduser(args.model_path)
     tokenizer, model, context_len = create_model(model_path, args.model_base, is_lora=args.is_lora, s2s=args.s2s, device=device)
@@ -101,7 +110,7 @@ def train_model(args):
 
     # 初始化Trainer
     training_args = TrainingArguments(
-    output_dir='saves',                         # 输出路径，包括模型检查点、中间文件等
+        output_dir='saves',                         # 输出路径，包括模型检查点、中间文件等
         overwrite_output_dir=True,                  # 是否覆写 output_dir
         do_train=True,                              # 是否做训练
         do_eval=False,                               # 是否做评估
@@ -114,7 +123,7 @@ def train_model(args):
         warmup_ratio=0.01,
         lr_scheduler_type='cosine',                 # 学习率调度策略，LLM 训练一般都用余弦
         logging_steps=1,                           # 打印步骤间隔
-        report_to='Tesorboard',                             # 日志输出目标，不想用 wandb 可以设置为 None
+        report_to='tensorboard',                             # 日志输出目标，不想用 wandb 可以设置为 None
         num_train_epochs=50,                         # 训练轮数，2 ~ 3 即可
         save_steps=1000,                            # 检查点保存步骤间隔
         save_total_limit=2,                         # output_dir 内留存的检查点最大数目

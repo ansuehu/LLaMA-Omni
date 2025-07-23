@@ -32,6 +32,10 @@ class OmniSpeechConfig(LlamaConfig):
     encoder_path = "Ansu/mHubert-basque-k1000-L9"
     speech_encoder_type = "hubert"  # "whisper" or "hubert"
     encoder_type = "finetune"  # "pretrain" or "finetune"
+    speech_projector_lr = 0.001,
+    speech_projector_type = "linear",
+    tune_speech_projector = True,
+    freeze_speech_projector = False,
 
 
 class OmniSpeechLlamaModel(OmniSpeechMetaModel, LlamaModel):

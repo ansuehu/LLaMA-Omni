@@ -81,11 +81,17 @@ class OmniSpeechMetaForCausalLM(ABC):
     def encode_speech(self, speech, speech_lengths):
         speech_encoder_type = self.config.speech_encoder_type
         speech_encoder = self.get_speech_encoder()
+        speech_lengths = torch.stack(speech_lengths)
         if "whisper" in speech_encoder_type.lower():
             # speech=speech.half()
             # speech_encoder.half()
             encoder_outs = speech_encoder(speech.permute(0, 2, 1))
             speech_lengths = (speech_lengths + 1) // 2
+        elif "hubert" in speech_encoder_type.lower():
+            # speech=speech.half()
+            # speech_encoder.half()
+            encoder_outs = speech_encoder(speech)
+            speech_lengths = speech_lengths // 2
         else:
             raise ValueError(f'Unknown speech encoder: {speech_encoder}')
         speech_projector_type = self.config.speech_projector_type

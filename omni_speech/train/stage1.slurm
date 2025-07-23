@@ -21,6 +21,4 @@ python omni_speech/train/stage1.py \
     --chunk-idx 0 \
     --temperature 0 \
     --conv-mode llama_3 \
-    --input_type mel \
-    --mel_size 128 \
 

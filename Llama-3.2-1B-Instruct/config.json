@@ -36,7 +36,7 @@
     "rope_type": "llama3"
   },
   "rope_theta": 500000.0,
-  "speech_encoder": "models/speech_encoder/large-v3.pt",
+  "speech_encoder": "Ansu/mHubert-basque-k1000-L9",
   "speech_encoder_ds_rate": 5,
   "speech_encoder_hidden_size": 1280,
   "speech_encoder_type": "hubert",
