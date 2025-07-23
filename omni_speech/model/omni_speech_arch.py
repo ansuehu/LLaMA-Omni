@@ -28,13 +28,13 @@ class OmniSpeechMetaModel:
     def __init__(self, config):
         super(OmniSpeechMetaModel, self).__init__(config)
 
-        print(config)
-        if hasattr(config, "speech_encoder"):
-            print("Initializing speech encoder and projector from config.")
-            self.speech_encoder = build_speech_encoder(config)
-        self.speech_projector = build_speech_projector(config)
+        # print(config)
+        # print("Initializing speech encoder and projector from config.")
+        # if hasattr(config, "speech_encoder"):
+        # self.speech_encoder = build_speech_encoder(config)
+        # self.speech_projector = build_speech_projector(config)
         
-        assert self.get_speech_projector() is not None, "speech_projector is not initialized!"  
+        # assert self.get_speech_projector() is not None, "speech_projector is not initialized!"  
 
     def get_speech_encoder(self):
         speech_encoder = getattr(self, 'speech_encoder', None)
@@ -106,6 +106,8 @@ class OmniSpeechMetaForCausalLM(ABC):
             raise ValueError(f'Unknown speech encoder: {speech_encoder}')
         speech_projector_type = self.config.speech_projector_type
         speech_projector = self.get_speech_projector()
+        if encoder_outs is not type(torch.Tensor):
+            encoder_outs = encoder_outs.last_hidden_state
         if speech_projector_type == "linear":
             encoder_outs = speech_projector(encoder_outs)
             speech_lengths = speech_lengths // speech_projector.k

@@ -1,9 +1,9 @@
 torch
 torchaudio
-whisper
 transformers
 datasets
 peft
-ffmpeg
 sentencepiece
 protobuf
+tensorboard
+soundfile

@@ -21,6 +21,7 @@ from transformers import AutoTokenizer, LlamaTokenizer, AutoModelForCausalLM, Au
 import torch
 from omni_speech.model import *
 from omni_speech.model.speech_encoder.builder import build_speech_encoder
+from omni_speech.model.speech_projector.builder import build_speech_projector
 import os
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
@@ -85,6 +86,9 @@ def load_pretrained_model(model_path, model_base, is_lora=False, s2s=False, load
 
     model.get_model().speech_encoder = build_speech_encoder(model.config)
     model.get_model().speech_encoder.to(dtype=torch.float16)
+
+    model.get_model().speech_projector = build_speech_projector(model.config)
+    model.get_model().speech_projector.to(dtype=torch.float16)
     model = model.to(device=device)
 
     if hasattr(model.config, "max_sequence_length"):
@@ -146,7 +150,9 @@ def create_model(model_path, model_base, is_lora=False, s2s=False, load_8bit=Fal
     
     model = model.to(device=device,dtype=torch.bfloat16)
     model.get_model().speech_encoder = build_speech_encoder(model.config)
-    model.get_model().speech_encoder.to(device=device, dtype=torch.bfloat16)
+    model.get_model().speech_projector = build_speech_projector(model.config)
+    # model.get_model().speech_encoder = build_speech_encoder(model.config)
+    # model.get_model().speech_encoder.to(device=device, dtype=torch.bfloat16)
     #冻住speech_encoder的参数
     for param in model.get_model().speech_encoder.parameters():
         param.requires_grad = False

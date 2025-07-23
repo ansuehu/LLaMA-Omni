@@ -37,6 +37,7 @@ class OmniSpeechConfig(LlamaConfig):
     tune_speech_projector = True
     freeze_speech_projector = False
     speech_encoder_ds_rate = 5
+    speech_encoder_hidden_size = 768 # if using whisper, it should be 1280
 
 
 class OmniSpeechLlamaModel(OmniSpeechMetaModel, LlamaModel):
@@ -96,18 +97,18 @@ class OmniSpeechLlamaForCausalLM(LlamaForCausalLM, OmniSpeechMetaForCausalLM):
                 speech_lengths
             )
             result=super().forward(
-            input_ids=input_ids, #none
-            attention_mask=attention_mask, #none
-            position_ids=position_ids, #none
-            past_key_values=past_key_values, #none
-            inputs_embeds=inputs_embeds, #tesnor[1,361,2048]
-            labels=labels, #none
-            use_cache=use_cache, #True
-            output_attentions=output_attentions, #none
-            output_hidden_states=output_hidden_states, #none
-            return_dict=return_dict #none
-        )
-        return  result
+                input_ids=input_ids, #none
+                attention_mask=attention_mask, #none
+                position_ids=position_ids, #none
+                past_key_values=past_key_values, #none
+                inputs_embeds=inputs_embeds, #tesnor[1,361,2048]
+                labels=labels, #none
+                use_cache=use_cache, #True
+                output_attentions=output_attentions, #none
+                output_hidden_states=output_hidden_states, #none
+                return_dict=return_dict #none
+            )
+        return result
 
     @torch.no_grad()
     def generate(

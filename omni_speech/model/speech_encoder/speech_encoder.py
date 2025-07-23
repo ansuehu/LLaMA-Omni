@@ -31,6 +31,7 @@ class HubertEncoder:
     
     @classmethod
     def load(cls, model_config):
+        print(f'Encoder path: {model_config.encoder_path}')
         model = HubertModel.from_pretrained(model_config.encoder_path)
         # if model_config.encoder_type == "pretrain":
         #     pass
