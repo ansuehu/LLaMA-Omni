@@ -2,6 +2,7 @@ from transformers import pipeline
 from datasets import load_dataset
 import json
 import argparse
+from tqdm import tqdm
 
 def instruct_to_prompt(instruction):
     
@@ -18,15 +19,20 @@ def instruct_to_prompt(instruction):
     # Please output in JSON format as follows: "question": question.
     # '''
 
+    # prompt = f'''
+    # Hona hemen erabiltzailearen jarraibidea duen datu bat. Hizketazko bertsio bat sortu nahi nuke
+    # hizkuntza eredu handi bat entrenatzeko, ahots-sarrera onartzen duena. Horregatik, mesedez,
+    # berridatzi nire jarraibide-datua honako eskakizun hauei jarraituz:
+    # 1. Galderak ez luke eduki behar TTS ereduak ezin dituen sintetizatu. Zenbakiak hitzez
+    # (ingelesez) idatzi behar dira, ez zenbaki arabiar gisa.
+    # 2. Galdera laburra izan behar da, hitz alferrikako gehiegirik gabe.
+    # [jarraibidea]: {instruction}
+    # Mesedez, erantzun JSON formatuan honela: "galdera": galdera.
+    # '''
+
     prompt = f'''
-    Hona hemen erabiltzailearen jarraibidea duen datu bat. Hizketazko bertsio bat sortu nahi nuke
-    hizkuntza eredu handi bat entrenatzeko, ahots-sarrera onartzen duena. Horregatik, mesedez,
-    berridatzi nire jarraibide-datua honako eskakizun hauei jarraituz:
-    1. Galderak ez luke eduki behar TTS ereduak ezin dituen sintetizatu. Zenbakiak hitzez
-    (ingelesez) idatzi behar dira, ez zenbaki arabiar gisa.
-    2. Galdera laburra izan behar da, hitz alferrikako gehiegirik gabe.
-    [jarraibidea]: {instruction}
-    Mesedez, erantzun JSON formatuan honela: "galdera": galdera.
+        Hona hemen testu bat. Itzuli ezazu Euskarara.
+        Testua: {instruction} 
     '''
     return prompt
 
@@ -39,33 +45,54 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Load dataset
-    dataset = load_dataset(args.input_path)
+    # dataset = load_dataset(args.input_path)
+    dataset = load_dataset("json", data_files="instruct_en_10_cleaned.json")
     print(dataset)
 
     # Load model pipeline
-    pipe = pipeline("text-generation", model="meta-llama/Llama-3.2-1B-Instruct", device_map="auto", do_sample=False, token='...')
+    pipe = pipeline("translation", model="facebook/nllb-200-distilled-600M")
+    # pipe = pipeline("translation", model="Helsinki-NLP/opus-mt-en-eu")
+    # pipe = pipeline("text-generation", model="meta-llama/Llama-3.2-1B-Instruct", device_map="auto", do_sample=False)
+    # pipe = pipeline("text-generation", model="meta-llama/Llama-3.2-1B-Instruct", device_map="auto", do_sample=False, token='...')
 
     # Collect results
-    output_data = []
+    instruct_data = []
+    answer_data = []
 
-    for i, example in enumerate(dataset['train']):
+    for i, example in enumerate(tqdm(dataset['train']['conversation'])):
         if i >= 10:
             break
         # print(example)
-        instruction = example['conversations'][0]['content']
-        prompt = instruct_to_prompt(instruction)
+        for j in range(0, len(example), 2):
+            instruction = example[j]['text']
+            answer = example[j+1]['text']
+            # instruc_prompt = instruct_to_prompt(instruction)
+            # answer_prompt = instruct_to_prompt(answer)
 
-        response = pipe(prompt, max_new_tokens=200, return_full_text=False)
+            # instruct_response = pipe(instruc_prompt, max_new_tokens=200, return_full_text=False)
+            # answer_response = pipe(answer_prompt, max_new_tokens=200, return_full_text=False)
+            instruct_translation = pipe(instruction, src_lang = 'eng_Latn', tgt_lang = 'eus_Latn')
+            answer_translation = pipe(answer, src_lang = 'eng_Latn', tgt_lang = 'eus_Latn')
+            
 
-        try:
-            generated_text = response[0]['generated_text']
-            output_data.append(generated_text)
-        except Exception as e:
-            print(f"Failed to parse response on example {i}: {e}")
-            # print(response)
+            try:
+                # generated_text = instruct_response[0]['generated_text']
+                # instruct_data.append(generated_text)
+                # generated_text = answer_response[0]['generated_text']
+                # answer_data.append(generated_text)
+                instruct_data.append(instruct_translation[0]['translation_text'])
+                answer_data.append(answer_translation[0]['translation_text'])
+            except Exception as e:
+                print(f"Failed to parse response on example {i}: {e}")
+                # print(response)
 
         # Save to file
 
-        with open(args.output_path, "w", encoding="utf-8") as f:
-            json.dump({"questions": output_data}, f, indent=2)
+    with open("rewritten_instructions.txt", "w") as f:
+        for item in instruct_data:
+            f.write(str(item) + "\n")
+    
+    with open("rewritten_answers.txt", "w") as f:
+        for item in answer_data:
+            f.write(str(item) + "\n")
 

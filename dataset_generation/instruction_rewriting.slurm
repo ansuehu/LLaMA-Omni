@@ -11,7 +11,7 @@
 #SBATCH --error=.slurm/Instruction_rewriting.err.log
 #SBATCH --chdir=/home/andoni.sudupe/LLaMA-Omni/
 
-INPUT_PATH=${1:-/data/andoni.sudupe/Magpie-Llama-3.1-8B-Instruct-Filtered-translated-1M/}
+INPUT_PATH=${1:-HiTZ/Magpie-Llama-3.1-8B-Instruct-Filtered-translated-1M}
 OUTPUT_PATH=${2:-dataset_generation/rewritten_instructions.json}
 NUM_EXAMPLES=${3:-10}
 
@@ -20,7 +20,7 @@ echo "Output path: $OUTPUT_PATH"
 echo "Number of examples: $NUM_EXAMPLES"
 
 # Run the Python script
-python ./dataset_generation/instruction_rewriting.py \
+python3 ./dataset_generation/instruction_rewriting.py \
   --input_path "$INPUT_PATH" \
   --output_path "$OUTPUT_PATH" \
   --num_examples "$NUM_EXAMPLES"
