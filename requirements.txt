@@ -7,3 +7,4 @@ sentencepiece
 protobuf
 tensorboard
 soundfile
+sacremoses

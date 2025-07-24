@@ -50,8 +50,10 @@ if __name__ == "__main__":
     print(dataset)
 
     # Load model pipeline
-    pipe = pipeline("translation", model="facebook/nllb-200-distilled-600M")
+    pipe = pipeline("translation", model="HiTZ/mt-hitz-en-eu")
+    # pipe = pipeline("translation", model="facebook/nllb-200-distilled-600M")
     # pipe = pipeline("translation", model="Helsinki-NLP/opus-mt-en-eu")
+
     # pipe = pipeline("text-generation", model="meta-llama/Llama-3.2-1B-Instruct", device_map="auto", do_sample=False)
     # pipe = pipeline("text-generation", model="meta-llama/Llama-3.2-1B-Instruct", device_map="auto", do_sample=False, token='...')
 
