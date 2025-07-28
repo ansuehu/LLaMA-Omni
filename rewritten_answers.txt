@@ -1,21 +1,24 @@
-Hona hemen osasuntsu egoteko hiru aholku: dieta orekatua jan, ur asko edanez hidratatuta egon eta gauero gutxienez zazpi ordu lo egin.
-Hiru kolore nagusiak gorria, urdina eta horia dira.
-Atomo batek hiru zati nagusi ditu: nukleoa, nukleoa, protoiz eta neutroiz osatua, bere inguruan orbitatzen duten elektroiz inguratua. Protoiek karga positiboa dute, neutroiek ez dute kargarik eta elektroiek karga negatiboa dute.
-Airearen kutsadura murrizteko, garraio publikoa, oinez edo bizikletaz ibiltzeko, erregai fosilak ez erretzeko eta birziklatzeko, energia-eraginkortasuna duten etxetresna elektrikoak erabiltzeko eta erabiltzen ez direnean itzaltzeko.
-Uraren kutsadura murrizteko, hondakinak behar bezala ezabatzeko, produktu ekologikoak erabiltzeko eta ura kontserbatzeko, txorrotak itzali behar dira erabiltzen ez direnean.
-Adimen artifizialeko lengoaia-eredu bat naiz, ez dut esperientzia edo emozio pertsonalik, eta, beraz, ez dut erabakirik hartzen, ezta erabaki zailak hartzeko aukerarik ere.
-Pertsonaia historiko bat Abraham Lincoln da, Estatu Batuetako Gerra Zibilean Emantzipazio Aldarrikapena egiteko erabaki zaila hartu zuena.
-Twitter eta Telegram mezularitza aplikazioak dira, eta Instagram, berriz, argazkiak eta bideoak partekatzeko aplikazioa da.
-Facebook eta WhatsApp sare sozialak eta mezularitza aplikazioak dira, YouTube bideoak partekatzeko plataforma bat den bitartean.
-Lau hamaseiren laurden laurdenaren baliokidea da, hamasei zati berdinetatik lau lau lau zati berdinetatik berdinak direlako.
-Hiru zortziren sei hamaseiren baliokidea da, zortzi zati berdinetatik hiru hamasei zati berdinetatik sei berdinak direlako.
-Hona hemen Sarah izeneko pertsonaia bati buruzko kontakizun labur bat, karrera erabaki garrantzitsu bat hartu behar duena. Sarah, talentu handiko kazetaria, albiste-talde ospetsu bat zuzentzeko promozio bat eskaintzen zaio, baina bere familia eta lagunengandik urruntzea eskatuko lioke. Bestela, bere egungo rola mantendu ahal izango du eta harreman estuak mantendu ahal izango ditu, baina bere ibilbidean aurrera egiteko aukera ahaztuko du. Sarahk bere lehentasunak pisatu beharko ditu eta datozen urteetan bere bizitzan eragina izango duen erabaki bat hartu beharko du.
-Pros-ek karreraren aurrerapena eta prestigioa barne hartzen dituzte, eta cons-ek, berriz, familia eta lagunengandik urruntzea.
-Sarahren erabakiak eragina izango du maite dituen pertsonekin dituen harremanetan, eta horrek tentsioa edo distantzia eragin dezake urruntzen bada.
-Ez naiz gai 3D modeloak errendatzeko, baina, hala ere, etxe baten testu-deskribapena eman diezazuket, horrek laguntzen badu.
-Etxe txikiak solairu bat eta teilatu aldapatsu bat ditu, logela bat, bainugela bat eta egongela bat.
-Esaldiak bi akats ditu, esaldi zuzena irakurri beharko litzateke: Bazkaria amaitu eta jatetxetik irten zen.
-Esaldiak bi errore ditu. Esaldi zuzenak irakurri beharko luke: Oraindik ez dira liburutegira joan.
-Esaldiak bi akats ditu, eta esaldi zuzena irakurri beharko litzateke: Irakasleak etxeko lan asko eman dizkigu gaur gauean.
-Epaiak bi akats ditu.Esaldi zuzena irakurri beharko litzateke: Enpresaren irabaziak nabarmen igo dira aurten.
-Esaldiak bi errore ditu.Esaldi zuzenak irakurri beharko luke: Ikasleek oraindik ez dituzte azterketaren emaitzak jaso.
+Europako Espazio Agentziaren finantziazio-zuzkidurak finantza-inplikazio garrantzitsuak ditu. Aurrekontuaren ehuneko hirurogei inguru Lurraren behaketa eta telekomunikazioak bezalako nahitaezko jardueretara bideratzen da. Gainerako ehuneko berrogeia aukerako programetara bideratzen da, hala nola espazioaren esploraziora eta sateliteen garapenera, estatu kideek finantzatzen baitituzte borondatez. Esleipen horrek agentziak proiektu berriak lortzeko duen gaitasunari eragiten dio eta dauden programak babesten ditu.
+Europako Espazio Agentziak bere aurrekontuaren ehuneko hirurogei inguru derrigorrezko jardueretara bideratzen du, Lurraren behaketa eta telekomunikazioak barne.
+Europako Espazio Agentziaren aurrekontuaren ehuneko berrogei inguru aukerako programetara bideratzen da.
+Ahabiak, marrubiak eta mugurdiak bikainak dira bihotz-osasunerako, baita zitrikoak ere, hala nola laranjak, pomeloak eta limoiak. Sagarrak, bananak eta ahuakateak ere onuragarriak dira bihotz-osasunerako.
+Bai, espinakak, azenarioak eta brokolia bezalako barazkiak mantenugai eta zuntzetan aberatsak dira, bihotzeko osasunerako bikainak bihurtuz.
+Almendrak, intxaurrak eta txia haziak onuragarriak dira bihotzeko osasunerako, koipe eta zuntz osasungarri ugari dituztelako.
+Bai, arroz arrea, kinoa eta oloa bezalako ale osoak zuntz eta mantenugaitan aberatsak dira, bihotzeko osasunerako bikainak bihurtuz.
+Bai, oilaskoa, indioilarra eta arraina bezalako proteina gihartsuak onuragarriak dira bihotzeko osasunerako, gantz saturatu gutxi dutelako.
+Pennsylvaniako Ordezkarien Ganberako ordezkari batek bi urteko agintaldia bete du.
+Geologoek analisi fosilak, estratigrafia eta geokimika bezalako teknikak erabiltzen dituzte Kanbriarreko arroken eraketak aztertzeko. Fosil motak eta geruzak, arroka-geruzen sekuentzia eta arroken konposizio kimikoa aztertzen dituzte eraketa-prozesuak berreraikitzeko.
+Geologoek esku-lenteak, mikroskopioak eta pintzelak bezalako tresnak erabiltzen dituzte fosilak aztertzeko eta haien xehetasunak aztertzeko.
+Geokimikak Kanbriarreko arroken konposizio kimikoa eta kondizioak zehazten laguntzen du, hala nola tenperatura eta uraren presentzia.
+Geologoek estratigrafia erabiltzen dute arroka-geruzen sekuentzia aztertzeko, haien adina eta formazio-ordena zehaztuz Kanbriako arroka-formazioen historia ulertzeko.
+Cal Poly-ko irakasleek Learn by Doing ikuspegia txertatzen dute eskuz egindako proiektuen, laborategiko esperimentuen eta mundu errealeko aplikazioen bidez. Esate baterako, ingeniaritzako ikasleek prototipoak diseinatu eta eraikitzen dituzte, eta enpresako ikasleek, berriz, benetako bezeroentzako marketin-kanpainak garatzen dituzte.
+IndyCar-ek hainbat aldaketa egin ditu pandemiari erantzunez, besteak beste, taldeko langileak arrazetan murriztea, urruntze soziala areagotzea eta COVID-19 probak egiteko protokoloak ezartzea. zaleek eta interes-taldeek aldaketa horiek ulertu dituzte, eta segurtasunari lehentasuna eman behar zaiola eta denboraldiaren jarraipena bermatu behar dela onartu dute.
+IndyCar-ek urruntze soziala, maskara eramatea eta COVID-19 probak egiten jarraitzen du parte-hartzaileentzat eta langileentzat ekitaldi guztietan.
+IndyCar-eko ekitaldietara zaleen asistentzia pixkanaka handituz joan da, eta lasterketa askok ikusle kopuru mugatua izatea ahalbidetzen dute, urruntze soziala eta maskara janzteko baldintzak mantentzen diren bitartean.
+Bai, Jaffak artista berrien gorakada ikusi du azken urteotan. Adibide aipagarri bat Amer Shammakh artista palestinarra da, kaleko arte biziagatik eta Jaffaren ondare kultural aberatsa islatzen duten muralengatik ezaguna.
+Amer Shammakh-ek Jaffaren arkitektura historikotik eta hiriko kultura-aniztasunetik marrazten du inspirazioa, zaharrak eta berriak nahastuz, komunitatearen nortasuna islatzen duten pieza paregabeak sortzeko.
+Nellyren karrera ez zen zehazki planaren arabera joan.St. Lunatics izeneko talde batean hasi zen rapero gisa, baina ez zuen arrakasta handirik lortu. Ondoren, bakarkako karrerara aldatu zen, hip hopa herrialdearekin eta poparekin nahastuz, eta horrek arrakasta itzela ekarri zuen, hala nola, Country Grammar eta Cruise.
+Ulises Hotela aukera ona da Ceutan, merkea da eta segurtasun-berrikuspen onak ditu.Pentsioa La Steel ere kontuan har dezakezu, aurrekontua errespetatzen duen ostatua da, erdiko kokapenarekin.
+Ulises hoteleko gau baten kostua hogeita hamar euro ingurukoa da.
+Ospitale psikiatrikoek egiaztapen-baldintzak bete behar dituzte, hala nola Batzorde Mistoa edo CARF Internazionala. Baldintza horiek bermatzen dute ospitaleek kalitate handiko pazienteen arreta ematen dutela eta behar bezalako prestakuntza duten langileak dituztela. Zehazki, ospitaleek langileen eta pazienteen arteko ratio egokiak izan behar dituzte, etengabeko prestakuntza eta hezkuntza eskaini behar dituzte, eta langileek beharrezko gaitasunak eta gaitasunak izan behar dituzte. Akreditazioak langileen prestakuntzari eragiten dio, konpetentzia erregularren ebaluazioak eta etengabeko hezkuntza eskatuz.
+Egiaztapen-baldintzak betetzen ez dituzten ospitaleek zigorrei, finantzaketa-galerei eta ospe-kalteei aurre egin ahal izango diete, eta, azken batean, pazientearen arretari eta langileen enpleguari eragingo diete.

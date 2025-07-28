@@ -11,8 +11,6 @@
 #SBATCH --error=.slurm/Omni-Stage1.err.log
 #SBATCH --chdir=/home/andoni.sudupe/LLaMA-Omni/
 
-
-
 python omni_speech/train/stage1.py \
     --model-path HiTZ/Latxa-Llama-3.1-8B-Instruct \
     --question-file data.json \

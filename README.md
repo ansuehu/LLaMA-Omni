@@ -27,3 +27,9 @@ PS：
  2.由于资源限制还没有用更多的数据训练好一个能work的模型并进行发布，后续可能会结合freeze的方法训练好一个中文端到端对话的模型。
 
 3.希望能对做端到端语音对话的朋友有一点点帮助
+
+
+
+    python ./dataset_generation/download_data.py
+
+    sbatch ./dataset_generation/instruction_rewriting.slurm

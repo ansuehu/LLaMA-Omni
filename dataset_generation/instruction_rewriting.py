@@ -1,5 +1,5 @@
 from transformers import pipeline
-from datasets import load_dataset
+from datasets import load_from_disk
 import json
 import argparse
 from tqdm import tqdm
@@ -40,17 +40,17 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--input_path', type=str, required=True, help='Path to input dataset')
-    parser.add_argument('--output_path', type=str, required=True, help='Path to save the output JSON')
-    parser.add_argument('--num_examples', type=int, default=10, help='Number of examples to process')
+    parser.add_argument('--instruction_path', type=str, required=True, help='Path to save the output JSON')
+    parser.add_argument('--answer_path', type=str, required=True, help='Path to save the output JSON')
     args = parser.parse_args()
 
     # Load dataset
-    # dataset = load_dataset(args.input_path)
-    dataset = load_dataset("json", data_files="instruct_en_10_cleaned.json")
+    dataset = load_from_disk(args.input_path)
+    # dataset = load_dataset("json", data_files="instruct_en_10_cleaned.json")
     print(dataset)
 
     # Load model pipeline
-    pipe = pipeline("translation", model="HiTZ/mt-hitz-en-eu")
+    pipe = pipeline("translation", model="HiTZ/mt-hitz-en-eu", batch_size=1000)
     # pipe = pipeline("translation", model="facebook/nllb-200-distilled-600M")
     # pipe = pipeline("translation", model="Helsinki-NLP/opus-mt-en-eu")
 
@@ -61,40 +61,47 @@ if __name__ == "__main__":
     instruct_data = []
     answer_data = []
 
-    for i, example in enumerate(tqdm(dataset['train']['conversation'])):
-        if i >= 10:
-            break
-        # print(example)
-        for j in range(0, len(example), 2):
-            instruction = example[j]['text']
-            answer = example[j+1]['text']
-            # instruc_prompt = instruct_to_prompt(instruction)
-            # answer_prompt = instruct_to_prompt(answer)
 
-            # instruct_response = pipe(instruc_prompt, max_new_tokens=200, return_full_text=False)
-            # answer_response = pipe(answer_prompt, max_new_tokens=200, return_full_text=False)
-            instruct_translation = pipe(instruction, src_lang = 'eng_Latn', tgt_lang = 'eus_Latn')
-            answer_translation = pipe(answer, src_lang = 'eng_Latn', tgt_lang = 'eus_Latn')
+    instruction_texts = [x['conversation'][0]["text"] for x in dataset]
+    answer_texts = [x['conversation'][1]["text"] for x in dataset]
+
+    instruct_data = pipe(instruction_texts, truncation='only_first')
+    answer_data = pipe(answer_texts, truncation='only_first')
+
+    # for i, example in enumerate(tqdm(dataset['conversation'])):
+    #     # if i >= 10:
+    #     #     break
+    #     # print(example)
+    #     for j in range(0, len(example), 2):
+    #         try:
+    #             instruction = example[j]['text']
+    #             answer = example[j+1]['text']
+    #             # instruc_prompt = instruct_to_prompt(instruction)
+    #             # answer_prompt = instruct_to_prompt(answer)
+
+    #             # instruct_response = pipe(instruc_prompt, max_new_tokens=200, return_full_text=False)
+    #             # answer_response = pipe(answer_prompt, max_new_tokens=200, return_full_text=False)
+    #             instruct_translation = pipe(instruction, src_lang = 'eng_Latn', tgt_lang = 'eus_Latn')
+    #             answer_translation = pipe(answer, src_lang = 'eng_Latn', tgt_lang = 'eus_Latn')
             
 
-            try:
-                # generated_text = instruct_response[0]['generated_text']
-                # instruct_data.append(generated_text)
-                # generated_text = answer_response[0]['generated_text']
-                # answer_data.append(generated_text)
-                instruct_data.append(instruct_translation[0]['translation_text'])
-                answer_data.append(answer_translation[0]['translation_text'])
-            except Exception as e:
-                print(f"Failed to parse response on example {i}: {e}")
-                # print(response)
+    #             # generated_text = instruct_response[0]['generated_text']
+    #             # instruct_data.append(generated_text)
+    #             # generated_text = answer_response[0]['generated_text']
+    #             # answer_data.append(generated_text)
+    #             instruct_data.append(instruct_translation[0]['translation_text'])
+    #             answer_data.append(answer_translation[0]['translation_text'])
+    #         except Exception as e:
+    #             print(f"Failed to parse response on example {i}: {e}")
+    #             # print(response)
 
-        # Save to file
+    #     # Save to file
 
-    with open("rewritten_instructions.txt", "w") as f:
+    with open(args.instruction_path, "w") as f:
         for item in instruct_data:
             f.write(str(item) + "\n")
     
-    with open("rewritten_answers.txt", "w") as f:
+    with open(args.answer_path, "w") as f:
         for item in answer_data:
             f.write(str(item) + "\n")
 

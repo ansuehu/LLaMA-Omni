@@ -6,5 +6,5 @@ vocoder/
 *.safetensors
 wandb
 saves
-instruct_en_200k_data_cosy2.json
 kafea.py
+data/

@@ -105,7 +105,7 @@ def train_model(args):
     
     
     device = 'cuda' if torch.cuda.is_available() else 'cpu'     # Log output target; if you don't want to use wandb, you can set it to None.
-    device = 'cpu' 
+    # device = 'cpu' 
 
     model_path = os.path.expanduser(args.model_path)
     tokenizer, model, context_len = create_model(model_path, args.model_base, is_lora=args.is_lora, s2s=args.s2s, device=device)
@@ -131,26 +131,27 @@ def train_model(args):
 
     # 初始化Trainer
     training_args = TrainingArguments(
-        output_dir='saves',                         # 输出路径，包括模型检查点、中间文件等
-        overwrite_output_dir=True,                  # 是否覆写 output_dir
-        do_train=True,                              # 是否做训练
-        do_eval=False,                               # 是否做评估
-        eval_steps=1,                            # 评估步骤间隔
-        per_device_train_batch_size=2,              # 每设备批次
-        gradient_accumulation_steps=6,              # 梯度累计步大小，省显存，但小模型没必要，用 1 收敛比较快
+        output_dir='saves',                         # Output_path, including checkpoints, intermediate results, etc
+        overwrite_output_dir=True,                  # Wheter to overwrite output_dir
+        do_train=True,                              # Wheter to train
+        do_eval=True,                               # Whether to evaluate
+        eval_steps=1,                               # Evaluation step interval
+        per_device_train_batch_size=2,              # Per-device batch size
+        gradient_accumulation_steps=6,              # Gradient accumulation step size, saves video memory, but is not necessary fo small models, using 1 converges faster
         learning_rate=1e-4,
         weight_decay=0.01,
         adam_beta2=0.95,
         warmup_ratio=0.01,
-        lr_scheduler_type='cosine',                 # 学习率调度策略，LLM 训练一般都用余弦
-        logging_steps=1,                           # 打印步骤间隔
-        report_to='tensorboard',                             # 日志输出目标，不想用 wandb 可以设置为 None
-        num_train_epochs=50,                         # 训练轮数，2 ~ 3 即可
-        save_steps=1000,                            # 检查点保存步骤间隔
-        save_total_limit=2,                         # output_dir 内留存的检查点最大数目
-        seed=3407,                                   # 随机种子
-        bf16=True,                                # 是否开启混合精度训练
-        use_cpu=True if device == 'cpu' else False,
+        lr_scheduler_type='cosine',                 # Learning rate scheduling strategy, LLM training generally uses cosine
+        logging_steps=1,                            # Print step interval
+        report_to='tensorboard',                    # Log output target
+        num_train_epochs=50,                        # Number of training rounds, 2 ~ 3 is enough
+        save_steps=1000,                            # Checkpoint save step interval
+        save_total_limit=2,                         # maximum number of checkpoints to keep in output_dir
+        seed=3407,                                  # random seed
+        bf16=True,                                  # Wheter to enable mixed precision training
+        use_cpu=True if device == 'cpu' else False, # Whether to use CPU for training, if you use GPU, set it to False
+        dataloader_pin_memory=False,                # Whether to pin memory in dataloader, if you use CPU, set it to False
     )
     tokenizer.pad_token = tokenizer.eos_token
     trainer = Trainer(
@@ -162,8 +163,6 @@ def train_model(args):
         data_collator=collate_fn,
     )
     trainer.train()
-        
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
