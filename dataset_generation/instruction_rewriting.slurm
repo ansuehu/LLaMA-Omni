@@ -17,6 +17,7 @@ INPUT_PATH="/home/andoni.sudupe/LLaMA-Omni/data/shards/shard_${SHARD_ID}"
 INSTRUCTION_PATH="/home/andoni.sudupe/LLaMA-Omni/data/output/translated_instruction_${SHARD_ID}.json"
 ANSWER_PATH="/home/andoni.sudupe/LLaMA-Omni/data/output/translated_answer_${SHARD_ID}.json"
 
+start_time=$(date +%s)
 
 # Run the Python script
 python3 ./dataset_generation/instruction_rewriting.py \
@@ -24,3 +25,7 @@ python3 ./dataset_generation/instruction_rewriting.py \
   --instruction_path "$INSTRUCTION_PATH" \
   --answer_path "$ANSWER_PATH" 
   # --num_examples "$NUM_EXAMPLES"
+
+end_time=$(date +%s)
+elapsed=$((end_time - start_time))
+echo "Elapsed time: $(date -ud "@$elapsed" +%T)"

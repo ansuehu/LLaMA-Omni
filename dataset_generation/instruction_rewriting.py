@@ -66,8 +66,18 @@ if __name__ == "__main__":
     answer_texts = [x['conversation'][1]["text"] for x in dataset]
 
     instruct_data = pipe(instruction_texts, truncation='only_first')
+    
+    with open(args.instruction_path, "w") as f:
+        for item in instruct_data:
+            f.write(str(item) + "\n")
+    
     answer_data = pipe(answer_texts, truncation='only_first')
 
+    with open(args.answer_path, "w") as f:
+        for item in answer_data:
+            f.write(str(item) + "\n")
+
+            
     # for i, example in enumerate(tqdm(dataset['conversation'])):
     #     # if i >= 10:
     #     #     break
@@ -97,11 +107,5 @@ if __name__ == "__main__":
 
     #     # Save to file
 
-    with open(args.instruction_path, "w") as f:
-        for item in instruct_data:
-            f.write(str(item) + "\n")
     
-    with open(args.answer_path, "w") as f:
-        for item in answer_data:
-            f.write(str(item) + "\n")
 
