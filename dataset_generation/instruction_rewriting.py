@@ -61,21 +61,31 @@ if __name__ == "__main__":
     instruct_data = []
     answer_data = []
 
+    instruction_texts = {"conversation_id": [], "text": []}
+    answer_texts = {"conversation_id": [], "text": []}
+    for i, conversation in enumerate(dataset):
+        for j, turn in enumerate(conversation['conversation']):
+            if j % 2 == 0:
+                instruction_texts["conversation_id"].append(i)
+                instruction_texts["text"].append(turn["text"])
+            else:
+                answer_texts["conversation_id"].append(i)
+                answer_texts["text"].append(turn["text"])
 
-    instruction_texts = [x['conversation'][0]["text"] for x in dataset]
-    answer_texts = [x['conversation'][1]["text"] for x in dataset]
 
-    instruct_data = pipe(instruction_texts, truncation='only_first')
-    
+
+    # instruction_texts = [x['conversation'][0]["text"] for x in dataset]
+    # answer_texts = [x['conversation'][1]["text"] for x in dataset]
+
+    instruction_texts["text"] = pipe(instruction_texts["text"], truncation='only_first')
+
     with open(args.instruction_path, "w") as f:
-        for item in instruct_data:
-            f.write(str(item) + "\n")
+        json.dump(instruction_texts, f)
     
-    answer_data = pipe(answer_texts, truncation='only_first')
+    answer_texts["text"] = pipe(answer_texts["text"], truncation='only_first')
 
     with open(args.answer_path, "w") as f:
-        for item in answer_data:
-            f.write(str(item) + "\n")
+        json.dump(answer_texts, f)
 
             
     # for i, example in enumerate(tqdm(dataset['conversation'])):

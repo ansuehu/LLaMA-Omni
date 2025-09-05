@@ -13,8 +13,7 @@
 
 python omni_speech/train/stage1.py \
     --model-path HiTZ/Latxa-Llama-3.1-8B-Instruct \
-    --question-file data.json \
-    --answer-file answer.json \
+    --question-file /scratch/andoni.sudupe/Instruct_S2S_eu/data.json \
     --num-chunks 1 \
     --chunk-idx 0 \
     --temperature 0 \

@@ -9,29 +9,58 @@
 #读取目录下所有wav文件,并打印出来路径
 import os
 import json
-wav_dir = 'wavs'
-wav_files = os.listdir(wav_dir)
+from datasets import load_dataset
+wav_dir = '/scratch/andoni.sudupe/Instruct_S2S_eu/wavs'
+from tqdm import tqdm
+# wav_files = os.listdir(wav_dir)
 
 #打开文件并读取内容，和wav_files同时遍历
-with open('r_100.txt', 'r', encoding='utf-8') as f:
-    responses = f.readlines()
-with open("data.json", "w", encoding="utf-8") as file:
+# with open('r_100.txt', 'r', encoding='utf-8') as f:
+#     responses = f.readlines()
+
+# with open("data.json", "w", encoding="utf-8") as file:
+#     saved_array = []
+#     for wav,response in zip(wav_files,responses):
+#         #以json格式保存os.path.join(wav_dir,wav),response.strip()
+#         data={"id":wav.split('.')[0],
+#                 "speech":os.path.join(wav_dir,wav),
+#                 "conversations":[
+#                     {
+#                         "from": "human",
+#                         "value": "<speech>\nPlease directly answer the questions in the user's speech."
+#                     },
+#                     {   "from": "assistant",
+#                         "value": response.strip()
+#                     }
+#                 ]
+#                 }
+#         saved_array.append(data)
+#     json.dump(saved_array, file, indent=4, ensure_ascii=False)
+
+
+dataset = load_dataset('Ansu/Instruct_S2S_eu')
+dataset = dataset['train']
+dataset = dataset.select(range(10000))
+with open("/scratch/andoni.sudupe/Instruct_S2S_eu/data.json", "w", encoding="utf-8") as file:
     saved_array = []
-    for wav,response in zip(wav_files,responses):
-        #以json格式保存os.path.join(wav_dir,wav),response.strip()
-        data={"id":wav.split('.')[0],
-                "speech":os.path.join(wav_dir,wav),
-                "conversations":[
-                    {
-                        "from": "human",
-                        "value": "<speech>\nPlease directly answer the questions in the user's speech."
-                    },
-                    {   "from": "assistant",
-                        "value": response.strip()
+    for example in tqdm(dataset):
+        for turn in example['conversation']:
+            if turn['from'] == 'human':
+                audio = turn['speech']
+                continue
+            data={"id":audio.split('.')[0],
+                    "speech":os.path.join(wav_dir,audio),
+                    "conversations":[
+                        {
+                            "from": "human",
+                            "value": "<speech>\nPlease directly answer the questions in the user's speech."
+                        },
+                        {   "from": "assistant",
+                            "value": turn['text'].strip()
+                        }
+                    ]
                     }
-                ]
-                }
-        saved_array.append(data)
+            saved_array.append(data)
     json.dump(saved_array, file, indent=4, ensure_ascii=False)
     
     
