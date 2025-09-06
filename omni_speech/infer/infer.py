@@ -3,8 +3,8 @@ import torch
 import os
 import json
 from tqdm import tqdm
-import shortuuid
-import whisper
+# import shortuuid
+# import whisper
 
 from omni_speech.constants import SPEECH_TOKEN_INDEX, DEFAULT_SPEECH_TOKEN
 from omni_speech.conversation import conv_templates, SeparatorStyle

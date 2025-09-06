@@ -142,13 +142,14 @@ def create_model(model_path, model_base, is_lora=False, s2s=False, load_8bit=Fal
         model = model_cls.from_pretrained(
             model_path,
             low_cpu_mem_usage=False,
+            device_map=f"cuda:{int(os.environ.get('LOCAL_RANK', 0))}" if torch.cuda.is_available() else "auto",
             **kwargs,
         )
     
     if s2s:
         model.initialize_speech_generator(model.config)
     
-    model = model.to(device=device,dtype=torch.bfloat16)
+    # model = model.to(device=device,dtype=torch.bfloat16)
     model.get_model().speech_encoder = build_speech_encoder(model.config)
     model.get_model().speech_projector = build_speech_projector(model.config)
     # model.get_model().speech_encoder = build_speech_encoder(model.config)

@@ -14,7 +14,7 @@ from omni_speech.conversation import conv_templates
 import math
 import json
 from omni_speech.datasets.preprocess import tokenizer_speech_token
-from transformers import TrainingArguments, Trainer, HubertModel
+from transformers import TrainingArguments, Trainer, HubertModel, TrainerCallback
 from torch.nn.utils.rnn import pad_sequence
 from tqdm import tqdm
 
@@ -32,7 +32,7 @@ def collate_fn(batch):
 
     # Transpose speech tensors to [length, 1] for pad_sequence
     speech_tensors = [t.transpose(0, 1) if t.shape[0] == 1 else t for t in speech_tensors]
-    speech_tensors = pad_sequence(speech_tensors, batch_first=True, padding_value=0)
+    speech_tensors = pad_sequence(speech_tensors, batch_first=True, padding_value=0).to(torch.bfloat16)
     # Transpose back to [batch, 1, length]
     # speech_tensors = speech_tensors.transpose(1, 2)
 
@@ -60,23 +60,35 @@ class CustomDataset(Dataset):
         conv.append_message(conv.roles[1], re)
         prompt = conv.get_prompt()
 
-        speech = load(speech_file)[0] # Torchaudio returns a tuple (waveform, sample_rate)
-        speech = speech.squeeze(0)
-        # if self.input_type == "raw":
-        #     # speech = torch.from_numpy(speech) # If loading with torchaudio this is not needed
-        #     if self.model_config.speech_normalize:
-        #         speech = torch.nn.functional.layer_norm(speech, speech.shape)
-        # elif self.input_type == "mel":
-        #     speech = whisper.pad_or_trim(speech)
-        #     speech = whisper.log_mel_spectrogram(speech, n_mels=self.mel_size).permute(1, 0)
-        input_ids = tokenizer_speech_token(prompt, self.tokenizer, return_tensors='pt')
-        ret=dict(
-            input_ids=input_ids.to(self.device),
-            labels=input_ids.to(self.device),
-            speech=speech.to(torch.bfloat16).to(self.device),
-            speech_lengths=torch.LongTensor([speech.shape[0]]).to(self.device)
-            )
-        return ret
+        try:
+            speech = load(speech_file)[0] # Torchaudio returns a tuple (waveform, sample_rate)
+            speech = speech.squeeze(0)
+            # if self.input_type == "raw":
+            #     # speech = torch.from_numpy(speech) # If loading with torchaudio this is not needed
+            #     if self.model_config.speech_normalize:
+            #         speech = torch.nn.functional.layer_norm(speech, speech.shape)
+            # elif self.input_type == "mel":
+            #     speech = whisper.pad_or_trim(speech)
+            #     speech = whisper.log_mel_spectrogram(speech, n_mels=self.mel_size).permute(1, 0)
+            input_ids = tokenizer_speech_token(prompt, self.tokenizer, return_tensors='pt')
+            ret=dict(
+                input_ids=input_ids,
+                labels=input_ids,
+                speech=speech,
+                speech_lengths=torch.LongTensor([speech.shape[0]])
+                )
+            return ret
+        except Exception as e:
+            print(f"Error processing {speech_file}: {e}")
+            # Return a dummy item in case of error to avoid breaking the DataLoader
+            input_ids = tokenizer_speech_token(prompt, self.tokenizer, return_tensors='pt')
+            ret=dict(
+                input_ids=input_ids,
+                labels=input_ids,
+                speech=torch.zeros(2000),
+                speech_lengths=torch.LongTensor([2000])
+                )
+            return ret
     def __len__(self):
         return len(self.questions)
     
@@ -99,6 +111,18 @@ def get_chunk(lst, n, k):
     chunks = split_list(lst, n)
     return chunks[k]
 
+class CUDAMemoryCallback(TrainerCallback):
+    def on_step_end(self, args, state, control, **kwargs):
+        if torch.cuda.is_available():
+            device_id = torch.cuda.current_device()
+            allocated = torch.cuda.memory_allocated(device_id) / 1024**3
+            reserved  = torch.cuda.memory_reserved(device_id) / 1024**3
+
+            print(
+                f"[Step {state.global_step}] "
+                f"Allocated: {allocated:.2f} GB | Reserved: {reserved:.2f} GB"
+            )
+        return control
 
 def train_model(args):
     # 设置每张卡的device
@@ -110,20 +134,6 @@ def train_model(args):
     model_path = os.path.expanduser(args.model_path)
     tokenizer, model, context_len = create_model(model_path, args.model_base, is_lora=args.is_lora, s2s=args.s2s, device=device)
 
-    # speech_encoder = model.get_model().speech_encoder
-    # hubert = HubertModel.from_pretrained("Ansu/mHubert-basque-k1000-L9")
-
-    # def compare_model_weights(model1, model2):
-    #     for (name1, param1), (name2, param2) in zip(tqdm(model1.named_parameters()), model2.named_parameters()):
-    #         if not torch.equal(param1, param2):
-    #             print(f"Difference found in layer: {name1} vs {name2}: {param1} vs {param2}")
-    #             return False
-    #     print("All weights are the same.")
-    #     return True
-    
-    # compare_model_weights(speech_encoder, hubert)
-    # return
-
     questions = json.load(open(os.path.expanduser(args.question_file), "r"))
     questions = get_chunk(questions, args.num_chunks, args.chunk_idx) #chunk 1 chunk-idx 0 取list中的多少进行测试
     data_loader = create_data_loader(questions, tokenizer, args.conv_mode, model.config, args.input_type, args.mel_size, device)
@@ -134,33 +144,46 @@ def train_model(args):
         output_dir='saves',                         # Output_path, including checkpoints, intermediate results, etc
         overwrite_output_dir=True,                  # Wheter to overwrite output_dir
         do_train=True,                              # Wheter to train
-        do_eval=True,                               # Whether to evaluate
-        eval_steps=1,                               # Evaluation step interval
-        per_device_train_batch_size=2,              # Per-device batch size
-        gradient_accumulation_steps=6,              # Gradient accumulation step size, saves video memory, but is not necessary fo small models, using 1 converges faster
+        do_eval=False,                               # Whether to evaluate
+        eval_steps=100,                               # Evaluation step interval
+        per_device_train_batch_size=1,              # Per-device batch size
+        per_device_eval_batch_size=1,               # Per-device batch size
+        gradient_accumulation_steps=1,              # Gradient accumulation step size, saves video memory, but is not necessary fo small models, using 1 converges faster
         learning_rate=1e-4,
         weight_decay=0.01,
         adam_beta2=0.95,
         warmup_ratio=0.01,
         lr_scheduler_type='cosine',                 # Learning rate scheduling strategy, LLM training generally uses cosine
-        logging_steps=1,                            # Print step interval
-        report_to='tensorboard',                    # Log output target
-        num_train_epochs=50,                        # Number of training rounds, 2 ~ 3 is enough
+        logging_steps=50,                            # Print step interval
         save_steps=1000,                            # Checkpoint save step interval
         save_total_limit=2,                         # maximum number of checkpoints to keep in output_dir
-        seed=3407,                                  # random seed
+        num_train_epochs=3,                        # Number of training rounds, 2 ~ 3 is enough
         bf16=True,                                  # Wheter to enable mixed precision training
-        use_cpu=True if device == 'cpu' else False, # Whether to use CPU for training, if you use GPU, set it to False
         dataloader_pin_memory=False,                # Whether to pin memory in dataloader, if you use CPU, set it to False
+        gradient_checkpointing=True,
+        report_to=['tensorboard', 'wandb'],                    # Log output target
+        seed=3407,                                  # random seed
+        # fsdp="full_shard auto_wrap"
+
     )
+    # model = model.to(torch.bfloat16)
+    for p in model.get_model().speech_encoder.parameters():
+        p.requires_grad = False
+    
+    for p in model.get_model().speech_projector.parameters():
+        p.requires_grad = True
+
+
     tokenizer.pad_token = tokenizer.eos_token
+    tokenizer.pad_token_id = tokenizer.eos_token_id
     trainer = Trainer(
         model=model,
         processing_class=tokenizer,
         args=training_args,
         train_dataset=data_loader,
-        eval_dataset=data_loader,
+        # eval_dataset=data_loader,
         data_collator=collate_fn,
+        callbacks=[CUDAMemoryCallback()],
     )
     trainer.train()
 
