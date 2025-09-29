@@ -8,3 +8,6 @@ wandb
 saves
 kafea.py
 data/
+*.out
+*.log
+.nfs*

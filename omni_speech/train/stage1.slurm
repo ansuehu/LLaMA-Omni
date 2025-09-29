@@ -12,7 +12,6 @@
 #SBATCH --chdir=/home/andoni.sudupe/LLaMA-Omni/
 
 export SSL_CERT_FILE=~/cacert.pem
-GPUS_PER_NODE=$(echo $SLURM_JOB_GPUS | tr ',' '\n' | wc -l)
 
 python omni_speech/train/stage1.py \
     --model-path HiTZ/Latxa-Llama-3.1-8B-Instruct \
@@ -21,5 +20,6 @@ python omni_speech/train/stage1.py \
     --chunk-idx 0 \
     --temperature 0 \
     --conv-mode llama_3 \
+    --output-folder $SLURM_JOB_ID \
 
 

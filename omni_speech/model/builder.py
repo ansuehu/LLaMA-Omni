@@ -80,7 +80,7 @@ def load_pretrained_model(model_path, model_base, is_lora=False, s2s=False, load
         tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=False)
         model = model_cls.from_pretrained(
             model_path,
-            low_cpu_mem_usage=False,
+            low_cpu_mem_usage=True,
             **kwargs
         )
 
@@ -141,7 +141,7 @@ def create_model(model_path, model_base, is_lora=False, s2s=False, load_8bit=Fal
         tokenizer = AutoTokenizer.from_pretrained(model_path)
         model = model_cls.from_pretrained(
             model_path,
-            low_cpu_mem_usage=False,
+            low_cpu_mem_usage=True,
             device_map=f"cuda:{int(os.environ.get('LOCAL_RANK', 0))}" if torch.cuda.is_available() else "auto",
             **kwargs,
         )

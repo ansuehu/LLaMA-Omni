@@ -141,11 +141,11 @@ def train_model(args):
 
     # 初始化Trainer
     training_args = TrainingArguments(
-        output_dir='saves',                         # Output_path, including checkpoints, intermediate results, etc
+        output_dir=f'saves/{args.output_folder}',   # Output_path, including checkpoints, intermediate results, etc
         overwrite_output_dir=True,                  # Wheter to overwrite output_dir
         do_train=True,                              # Wheter to train
-        do_eval=False,                               # Whether to evaluate
-        eval_steps=100,                               # Evaluation step interval
+        do_eval=False,                              # Whether to evaluate
+        eval_steps=100,                             # Evaluation step interval
         per_device_train_batch_size=1,              # Per-device batch size
         per_device_eval_batch_size=1,               # Per-device batch size
         gradient_accumulation_steps=1,              # Gradient accumulation step size, saves video memory, but is not necessary fo small models, using 1 converges faster
@@ -154,19 +154,19 @@ def train_model(args):
         adam_beta2=0.95,
         warmup_ratio=0.01,
         lr_scheduler_type='cosine',                 # Learning rate scheduling strategy, LLM training generally uses cosine
-        logging_steps=50,                            # Print step interval
+        logging_steps=50,                           # Print step interval
         save_steps=1000,                            # Checkpoint save step interval
         save_total_limit=2,                         # maximum number of checkpoints to keep in output_dir
-        num_train_epochs=3,                        # Number of training rounds, 2 ~ 3 is enough
+        num_train_epochs=3,                         # Number of training rounds, 2 ~ 3 is enough
         bf16=True,                                  # Wheter to enable mixed precision training
         dataloader_pin_memory=False,                # Whether to pin memory in dataloader, if you use CPU, set it to False
         gradient_checkpointing=True,
-        report_to=['tensorboard', 'wandb'],                    # Log output target
+        report_to=['tensorboard', 'wandb'],         # Log output target
         seed=3407,                                  # random seed
         # fsdp="full_shard auto_wrap"
 
     )
-    # model = model.to(torch.bfloat16)
+    model = model.to(torch.bfloat16)
     for p in model.get_model().speech_encoder.parameters():
         p.requires_grad = False
     
@@ -203,5 +203,6 @@ if __name__ == "__main__":
     parser.add_argument("--mel_size", type=int, default=128)
     parser.add_argument("--s2s", action="store_true", default=False)
     parser.add_argument("--is_lora", action="store_true", default=False)
+    parser.add_argument("--output-folder", type=str, default=None)
     args = parser.parse_args()
     train_model(args)
