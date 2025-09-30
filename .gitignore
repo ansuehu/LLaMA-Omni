@@ -11,3 +11,4 @@ data/
 *.out
 *.log
 .nfs*
+*.pth
